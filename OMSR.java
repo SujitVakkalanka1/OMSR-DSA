@@ -1,170 +1,8 @@
 import java.util.*;
 
-/*
- OMSR - Offline Music Search and Retrieval Studio
- Academic DSA Project | Java Console Application
-*/
-
-// =============================================================
-//  SONG
-// =============================================================
-class Song {
-    static int counter = 1;
-    int    id;
-    String title, artist, genre;
-    int    duration;
-    float  rating;
-    int    playCount;
-
-    Song(String title, String artist, String genre, int duration, float rating) {
-        this.id        = counter++;
-        this.title     = title;
-        this.artist    = artist;
-        this.genre     = genre;
-        this.duration  = duration;
-        this.rating    = rating;
-        this.playCount = 0;
-    }
-
-    String dur() {
-        return duration / 60 + ":" + String.format("%02d", duration % 60);
-    }
-
-    void print(int pos, boolean nowPlaying) {
-        String prefix = nowPlaying ? " >> " : "     ";
-        String posStr = (pos > 0) ? String.format("%3d.", pos) : "    ";
-        System.out.printf("%s%s %-28s %-18s %-10s %-6s Rating:%.1f  Plays:%d%n",
-            prefix, posStr, title, artist, genre, dur(), rating, playCount);
-    }
-
-    public String toString() {
-        return "\"" + title + "\" by " + artist;
-    }
-}
-
-// =============================================================
-//  DOUBLY LINKED LIST NODE
-// =============================================================
-class DLLNode {
-    Song    song;
-    DLLNode prev, next;
-    DLLNode(Song s) { this.song = s; }
-}
-
-// =============================================================
-//  PLAYLIST (Doubly Linked List)
-// =============================================================
-class Playlist {
-    DLLNode head, tail, current;
-    int     size = 0;
-    String  name;
-
-    Playlist(String name) { this.name = name; }
-
-    void add(Song s) {
-        DLLNode n = new DLLNode(s);
-        if (head == null) { head = tail = n; }
-        else { tail.next = n; n.prev = tail; tail = n; }
-        if (current == null) current = head;
-        size++;
-        System.out.println("Added: " + s);
-    }
-
-    boolean remove(String title) {
-        DLLNode c = head;
-        while (c != null) {
-            if (c.song.title.equalsIgnoreCase(title)) {
-                if (c == current) current = c.next != null ? c.next : c.prev;
-                if (c.prev != null) c.prev.next = c.next; else head = c.next;
-                if (c.next != null) c.next.prev = c.prev; else tail = c.prev;
-                size--;
-                System.out.println("Removed: \"" + title + "\"");
-                return true;
-            }
-            c = c.next;
-        }
-        System.out.println("Song not found: \"" + title + "\"");
-        return false;
-    }
-
-    void display() {
-        if (head == null) {
-            System.out.println("Playlist is empty.");
-            return;
-        }
-        System.out.println("\n=== Playlist: " + name + " (" + size + " songs) ===");
-        printTableHeader();
-        DLLNode c = head;
-        int i = 1;
-        while (c != null) {
-            c.song.print(i++, c == current);
-            c = c.next;
-        }
-        System.out.println("(>>) = Now Playing");
-    }
-
-    void printTableHeader() {
-        System.out.printf("      %-4s %-28s %-18s %-10s %-6s %-10s %s%n",
-            "No.", "Title", "Artist", "Genre", "Dur", "Rating", "Plays");
-        System.out.println("      " + "-".repeat(80));
-    }
-
-    Song[] toArray() {
-        Song[] arr = new Song[size];
-        DLLNode c = head;
-        int i = 0;
-        while (c != null) { arr[i++] = c.song; c = c.next; }
-        return arr;
-    }
-
-    void fromArray(Song[] arr) {
-        head = tail = current = null;
-        size = 0;
-        for (Song s : arr) {
-            DLLNode n = new DLLNode(s);
-            if (head == null) { head = tail = n; }
-            else { tail.next = n; n.prev = tail; tail = n; }
-            size++;
-        }
-        current = head;
-    }
-
-    Song playNext() {
-        if (current == null || current.next == null) {
-            System.out.println("Already at the last song.");
-            return null;
-        }
-        current = current.next;
-        current.song.playCount++;
-        return current.song;
-    }
-
-    Song playPrev() {
-        if (current == null || current.prev == null) {
-            System.out.println("Already at the first song.");
-            return null;
-        }
-        current = current.prev;
-        current.song.playCount++;
-        return current.song;
-    }
-
-    Song playCurrent() {
-        if (current == null) {
-            System.out.println("Playlist is empty.");
-            return null;
-        }
-        current.song.playCount++;
-        return current.song;
-    }
-}
-
-// =============================================================
-//  SEARCH (Linear + Binary)
-// =============================================================
 class SearchEngine {
 
-    // Linear Search - works on unsorted list
+    
     static List<Song> linearSearch(Playlist pl, String query, String field) {
         List<Song> results = new ArrayList<>();
         DLLNode c = pl.head;
@@ -184,7 +22,7 @@ class SearchEngine {
         return results;
     }
 
-    // Binary Search - requires sorted array
+    
     static Song binarySearch(Song[] sorted, String title) {
         int lo = 0, hi = sorted.length - 1, comparisons = 0;
         while (lo <= hi) {
@@ -202,12 +40,12 @@ class SearchEngine {
     }
 }
 
-// =============================================================
-//  SORTING ALGORITHMS
-// =============================================================
+
+
+
 class Sorter {
 
-    // Bubble Sort - by title A to Z
+    
     static void bubbleSort(Song[] arr) {
         int n = arr.length, swaps = 0;
         for (int i = 0; i < n - 1; i++)
@@ -219,7 +57,7 @@ class Sorter {
         System.out.println("Bubble Sort complete. Swaps: " + swaps);
     }
 
-    // Insertion Sort - by artist A to Z
+    
     static void insertionSort(Song[] arr) {
         int shifts = 0;
         for (int i = 1; i < arr.length; i++) {
@@ -233,7 +71,7 @@ class Sorter {
         System.out.println("Insertion Sort complete. Shifts: " + shifts);
     }
 
-    // Merge Sort - by rating high to low
+    
     static void mergeSort(Song[] arr, int l, int r) {
         if (l < r) {
             int m = (l + r) / 2;
@@ -255,7 +93,7 @@ class Sorter {
         while (j < n2) arr[k++] = R[j++];
     }
 
-    // Quick Sort - by play count high to low
+    
     static void quickSort(Song[] arr, int low, int high) {
         if (low < high) {
             int pi = partition(arr, low, high);
@@ -276,9 +114,9 @@ class Sorter {
     }
 }
 
-// =============================================================
-//  STACK - Playback History
-// =============================================================
+
+
+
 class HistoryStack {
     private static class Node {
         Song song;
@@ -320,9 +158,9 @@ class HistoryStack {
     }
 }
 
-// =============================================================
-//  CIRCULAR QUEUE - Upcoming Songs
-// =============================================================
+
+
+
 class CircularQueue {
     private final Song[] data;
     private int front, rear, count;
@@ -370,9 +208,9 @@ class CircularQueue {
     }
 }
 
-// =============================================================
-//  HASH TABLE - Separate Chaining
-// =============================================================
+
+
+
 class HashTable {
     private static final int SIZE = 13;
 
@@ -446,9 +284,9 @@ class HashTable {
     }
 }
 
-// =============================================================
-//  MAX-HEAP - Song Recommendations
-// =============================================================
+
+
+
 class MaxHeap {
     private final List<Song> heap = new ArrayList<>();
 
@@ -513,9 +351,9 @@ class MaxHeap {
     }
 }
 
-// =============================================================
-//  STACK APPLICATIONS
-// =============================================================
+
+
+
 class StackApps {
 
     private static int prec(char op) {
@@ -529,7 +367,7 @@ class StackApps {
 
     private static boolean isOp(char c) { return "+-*/^".indexOf(c) >= 0; }
 
-    // a) Infix to Postfix
+    
     static String infixToPostfix(String expr) {
         StringBuilder out = new StringBuilder();
         Deque<Character> stk = new ArrayDeque<>();
@@ -562,7 +400,7 @@ class StackApps {
         return result;
     }
 
-    // b) Postfix Evaluation
+    
     static double evalPostfix(String postfix) {
         Deque<Double> stk = new ArrayDeque<>();
 
@@ -599,7 +437,7 @@ class StackApps {
         return result;
     }
 
-    // c) Bracket Balancing
+    
     static boolean isBalanced(String expr) {
         Deque<Character> stk = new ArrayDeque<>();
 
@@ -639,9 +477,9 @@ class StackApps {
     }
 }
 
-// =============================================================
-//  MAIN - Menu-Driven Console Application
-// =============================================================
+
+
+
 public class OMSR {
 
     static final Scanner sc = new Scanner(System.in);
@@ -665,7 +503,7 @@ public class OMSR {
         }
     }
 
-    // Load sample songs on startup
+    
     static void loadSampleData(Playlist pl, HashTable ht, MaxHeap mh) {
         Object[][] data = {
             {"Blinding Lights",   "The Weeknd",       "Pop",       200, 4.9f, 12},
@@ -686,9 +524,9 @@ public class OMSR {
         }
     }
 
-    // ----------------------------------------------------------
-    //  MENU: Playlist
-    // ----------------------------------------------------------
+    
+    
+    
     static void menuPlaylist(Playlist pl, HashTable ht, MaxHeap mh) {
         while (true) {
             System.out.println("\n=== Playlist Management ===");
@@ -732,9 +570,9 @@ public class OMSR {
         }
     }
 
-    // ----------------------------------------------------------
-    //  MENU: Search
-    // ----------------------------------------------------------
+    
+    
+    
     static void menuSearch(Playlist pl, HashTable ht) {
         while (true) {
             System.out.println("\n=== Search Songs ===");
@@ -775,9 +613,9 @@ public class OMSR {
         }
     }
 
-    // ----------------------------------------------------------
-    //  MENU: Sort
-    // ----------------------------------------------------------
+    
+    
+    
     static void menuSort(Playlist pl) {
         while (true) {
             System.out.println("\n=== Sort Playlist ===");
@@ -810,9 +648,9 @@ public class OMSR {
         }
     }
 
-    // ----------------------------------------------------------
-    //  MENU: Playback
-    // ----------------------------------------------------------
+    
+    
+    
     static void menuPlayback(Playlist pl, HistoryStack hist, CircularQueue queue) {
         while (true) {
             System.out.println("\n=== Playback Controls ===");
@@ -862,12 +700,12 @@ public class OMSR {
         }
     }
 
-    // ==========================================================
-    //  MAIN ENTRY POINT
-    // ==========================================================
+    
+    
+    
     public static void main(String[] args) {
 
-        // List of all playlists
+        
         List<Playlist> playlists = new ArrayList<>();
         Playlist defaultPl = new Playlist("My Library");
         playlists.add(defaultPl);
@@ -884,7 +722,7 @@ public class OMSR {
         loadSampleData(defaultPl, ht, mh);
         System.out.println("Done. " + defaultPl.size + " songs loaded.");
 
-        // Active playlist index
+        
         int[] activeIdx = {0};
 
         while (true) {
@@ -905,7 +743,7 @@ public class OMSR {
                 case 3 -> menuSort(active);
                 case 4 -> menuPlayback(active, hist, que);
                 case 5 -> {
-                    // Playlist manager loop
+                    
                     while (true) {
                         System.out.println("\n=== My Playlists ===");
                         System.out.println("Available playlists:");
@@ -925,7 +763,7 @@ public class OMSR {
                         if (ch == 0) break;
 
                         else if (ch == 1) {
-                            // Create
+                            
                             String name = input("Enter new playlist name:");
                             if (name.isEmpty()) {
                                 System.out.println("Name cannot be empty.");
@@ -943,7 +781,7 @@ public class OMSR {
                         }
 
                         else if (ch == 2) {
-                            // Delete
+                            
                             if (playlists.size() == 1) {
                                 System.out.println("Cannot delete the only playlist.");
                             } else {
@@ -956,7 +794,7 @@ public class OMSR {
                                     if (confirm.equalsIgnoreCase("yes")) {
                                         System.out.println("Deleted: " + playlists.get(del).name);
                                         playlists.remove(del);
-                                        // Adjust active index if needed
+                                        
                                         if (activeIdx[0] >= playlists.size())
                                             activeIdx[0] = playlists.size() - 1;
                                         System.out.println("Active playlist is now: " + playlists.get(activeIdx[0]).name);
@@ -968,7 +806,7 @@ public class OMSR {
                         }
 
                         else if (ch == 3) {
-                            // Switch
+                            
                             System.out.print("Enter playlist number to switch to: ");
                             int sw = inputInt("") - 1;
                             if (sw < 0 || sw >= playlists.size()) {
